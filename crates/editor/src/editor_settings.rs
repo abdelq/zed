@@ -44,6 +44,7 @@ pub struct EditorSettings {
     pub search: SearchSettings,
     pub auto_signature_help: bool,
     pub show_signature_help_after_edits: bool,
+    pub auto_signature_help_navigation_delay: u64,
     #[serde(default)]
     pub go_to_definition_fallback: GoToDefinitionFallback,
     pub jupyter: Jupyter,
@@ -507,6 +508,13 @@ pub struct EditorSettingsContent {
     ///
     /// Default: false
     pub show_signature_help_after_edits: Option<bool>,
+
+    /// Time to wait in milliseconds before showing signature help when navigating code.
+    /// This delay only applies to navigation actions (cursor movement, selection changes)
+    /// and does not affect signature help shown during edits.
+    ///
+    /// Default: 0
+    pub auto_signature_help_navigation_delay: Option<u64>,
 
     /// Whether to follow-up empty go to definition responses from the language server or not.
     /// `FindAllReferences` allows to look up references of the same symbol instead.

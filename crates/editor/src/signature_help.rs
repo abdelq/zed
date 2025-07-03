@@ -39,7 +39,7 @@ impl Editor {
         self.auto_signature_help = self
             .auto_signature_help
             .map(|auto_signature_help| !auto_signature_help)
-            .or_else(|| Some(!EditorSettings::get_global(cx).auto_signature_help));
+            .or_else(|| Some(!EditorSettings::get_global(cx).auto_signature_help.enabled));
         match self.auto_signature_help {
             Some(true) => {
                 self.show_signature_help(&ShowSignatureHelp, window, cx);
@@ -70,7 +70,7 @@ impl Editor {
         if let Some(auto_signature_help) = self.auto_signature_help {
             auto_signature_help
         } else {
-            EditorSettings::get_global(cx).auto_signature_help
+            EditorSettings::get_global(cx).auto_signature_help.enabled
         }
     }
 
@@ -195,7 +195,9 @@ impl Editor {
         let language = self.language_at(position, cx);
 
         let delay_ms = if is_navigation {
-            EditorSettings::get_global(cx).auto_signature_help_navigation_delay
+            EditorSettings::get_global(cx)
+                .auto_signature_help
+                .navigation_delay
         } else {
             0
         };

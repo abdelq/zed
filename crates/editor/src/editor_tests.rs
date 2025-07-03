@@ -2,6 +2,7 @@ use super::*;
 use crate::{
     JoinLines,
     code_context_menus::CodeContextMenu,
+    editor_settings::AutoSignatureHelpContent,
     inline_completion_tests::FakeInlineCompletionProvider,
     linked_editing_ranges::LinkedEditingRanges,
     scroll::scroll_amount::ScrollAmount,
@@ -10741,7 +10742,11 @@ async fn test_handle_input_for_show_signature_help_auto_signature_help_true(
     cx.update(|cx| {
         cx.update_global::<SettingsStore, _>(|settings, cx| {
             settings.update_user_settings::<EditorSettings>(cx, |settings| {
-                settings.auto_signature_help = Some(true);
+                settings.auto_signature_help = Some(AutoSignatureHelpContent {
+                    enabled: Some(true),
+                    show_after_edits: None,
+                    navigation_delay: None,
+                });
             });
         });
     });
@@ -10881,8 +10886,11 @@ async fn test_handle_input_with_different_show_signature_settings(cx: &mut TestA
     cx.update(|cx| {
         cx.update_global::<SettingsStore, _>(|settings, cx| {
             settings.update_user_settings::<EditorSettings>(cx, |settings| {
-                settings.auto_signature_help = Some(false);
-                settings.show_signature_help_after_edits = Some(false);
+                settings.auto_signature_help = Some(AutoSignatureHelpContent {
+                    enabled: Some(false),
+                    show_after_edits: Some(false),
+                    navigation_delay: None,
+                });
             });
         });
     });
@@ -11008,8 +11016,11 @@ async fn test_handle_input_with_different_show_signature_settings(cx: &mut TestA
     cx.update(|_, cx| {
         cx.update_global::<SettingsStore, _>(|settings, cx| {
             settings.update_user_settings::<EditorSettings>(cx, |settings| {
-                settings.auto_signature_help = Some(false);
-                settings.show_signature_help_after_edits = Some(true);
+                settings.auto_signature_help = Some(AutoSignatureHelpContent {
+                    enabled: Some(false),
+                    show_after_edits: Some(true),
+                    navigation_delay: None,
+                });
             });
         });
     });
@@ -11050,8 +11061,11 @@ async fn test_handle_input_with_different_show_signature_settings(cx: &mut TestA
     cx.update(|_, cx| {
         cx.update_global::<SettingsStore, _>(|settings, cx| {
             settings.update_user_settings::<EditorSettings>(cx, |settings| {
-                settings.auto_signature_help = Some(true);
-                settings.show_signature_help_after_edits = Some(false);
+                settings.auto_signature_help = Some(AutoSignatureHelpContent {
+                    enabled: Some(true),
+                    show_after_edits: Some(false),
+                    navigation_delay: None,
+                });
             });
         });
     });
@@ -11094,7 +11108,11 @@ async fn test_signature_help(cx: &mut TestAppContext) {
     cx.update(|cx| {
         cx.update_global::<SettingsStore, _>(|settings, cx| {
             settings.update_user_settings::<EditorSettings>(cx, |settings| {
-                settings.auto_signature_help = Some(true);
+                settings.auto_signature_help = Some(AutoSignatureHelpContent {
+                    enabled: Some(true),
+                    show_after_edits: None,
+                    navigation_delay: None,
+                });
             });
         });
     });

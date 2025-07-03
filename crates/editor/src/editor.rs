@@ -4224,8 +4224,8 @@ impl Editor {
 
             let editor_settings = EditorSettings::get_global(cx);
             if bracket_inserted
-                && (editor_settings.auto_signature_help
-                    || editor_settings.show_signature_help_after_edits)
+                && (editor_settings.auto_signature_help.enabled
+                    || editor_settings.auto_signature_help.show_after_edits)
             {
                 this.show_signature_help(&ShowSignatureHelp, window, cx);
             }
@@ -5889,7 +5889,9 @@ impl Editor {
         );
 
         let editor_settings = EditorSettings::get_global(cx);
-        if editor_settings.show_signature_help_after_edits || editor_settings.auto_signature_help {
+        if editor_settings.auto_signature_help.show_after_edits
+            || editor_settings.auto_signature_help.enabled
+        {
             // After the code completion is finished, users often want to know what signatures are needed.
             // so we should automatically call signature_help
             self.show_signature_help(&ShowSignatureHelp, window, cx);

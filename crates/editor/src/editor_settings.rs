@@ -42,9 +42,7 @@ pub struct EditorSettings {
     pub search_wrap: bool,
     #[serde(default)]
     pub search: SearchSettings,
-    pub auto_signature_help: bool,
-    pub show_signature_help_after_edits: bool,
-    pub auto_signature_help_navigation_delay: u64,
+    pub auto_signature_help: AutoSignatureHelp,
     #[serde(default)]
     pub go_to_definition_fallback: GoToDefinitionFallback,
     pub jupyter: Jupyter,
@@ -173,6 +171,13 @@ impl Minimap {
             ..self
         }
     }
+}
+
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct AutoSignatureHelp {
+    pub enabled: bool,
+    pub show_after_edits: bool,
+    pub navigation_delay: u64,
 }
 
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
@@ -499,22 +504,8 @@ pub struct EditorSettingsContent {
     /// Default: nothing is enabled
     pub search: Option<SearchSettings>,
 
-    /// Whether to automatically show a signature help pop-up or not.
-    ///
-    /// Default: false
-    pub auto_signature_help: Option<bool>,
-
-    /// Whether to show the signature help pop-up after completions or bracket pairs inserted.
-    ///
-    /// Default: false
-    pub show_signature_help_after_edits: Option<bool>,
-
-    /// Time to wait in milliseconds before showing signature help when navigating code.
-    /// This delay only applies to navigation actions (cursor movement, selection changes)
-    /// and does not affect signature help shown during edits.
-    ///
-    /// Default: 0
-    pub auto_signature_help_navigation_delay: Option<u64>,
+    /// Auto signature help settings
+    pub auto_signature_help: Option<AutoSignatureHelpContent>,
 
     /// Whether to follow-up empty go to definition responses from the language server or not.
     /// `FindAllReferences` allows to look up references of the same symbol instead.
@@ -662,6 +653,27 @@ pub struct ScrollbarAxesContent {
     ///
     /// Default: true
     vertical: Option<bool>,
+}
+
+/// Auto signature help related settings
+#[derive(Copy, Clone, Debug, Default, Serialize, Deserialize, JsonSchema, PartialEq, Eq)]
+pub struct AutoSignatureHelpContent {
+    /// Whether to automatically show a signature help pop-up or not.
+    ///
+    /// Default: false
+    pub enabled: Option<bool>,
+
+    /// Whether to show the signature help pop-up after completions or bracket pairs inserted.
+    ///
+    /// Default: false
+    pub show_after_edits: Option<bool>,
+
+    /// Time to wait in milliseconds before showing signature help when navigating code.
+    /// This delay only applies to navigation actions (cursor movement, selection changes)
+    /// and does not affect signature help shown during edits.
+    ///
+    /// Default: 0
+    pub navigation_delay: Option<u64>,
 }
 
 /// Gutter related settings
@@ -853,14 +865,19 @@ impl Settings for EditorSettings {
             },
         );
 
+        let mut auto_signature_help = AutoSignatureHelpContent::default();
         vscode.bool_setting(
             "editor.parameterHints.enabled",
-            &mut current.auto_signature_help,
+            &mut auto_signature_help.enabled,
         );
         vscode.bool_setting(
             "editor.parameterHints.enabled",
-            &mut current.show_signature_help_after_edits,
+            &mut auto_signature_help.show_after_edits,
         );
+
+        if auto_signature_help != AutoSignatureHelpContent::default() {
+            current.auto_signature_help = Some(auto_signature_help);
+        }
 
         if let Some(use_ignored) = vscode.read_bool("search.useIgnoreFiles") {
             let search = current.search.get_or_insert_default();
